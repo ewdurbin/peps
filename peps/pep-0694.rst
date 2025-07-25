@@ -680,6 +680,9 @@ The successful response includes the following:
         "identifier": "http-post-bytes",
         "file_url": "...",
         "attestations_url": "..."
+      },
+      "capabilities": {
+        "file-upload-completion-callback": true
       }
     }
 
@@ -709,6 +712,14 @@ the following keys:
     This mapping **MUST** contain a key ``identifier`` which maps to
     the identifier string for the chosen File Upload Mechanism.
 
+``capabilities``
+    An optional mapping indicating additional features supported by the server
+    for this File Upload Session.
+    If present, it **MAY** contain:
+
+    - ``file-upload-completion-callback``: A boolean indicating whether the server supports
+      asynchronous completion callbacks for this session.
+
 .. _file-upload-session-links:
 
 File Upload Session Links
@@ -735,7 +746,7 @@ To complete a File Upload Session, which indicates that the file upload mechanis
 and did not produce an error, a client issues a ``POST`` to the ``file-upload-session`` link in the
 File Upload Session creation response body.
 
-The requests looks like:
+The request looks like:
 
 .. code-block:: json
 
@@ -744,7 +755,21 @@ The requests looks like:
         "api-version": "2.0"
       },
       "action": "complete",
+      "callback_url": "https://example.com/webhook/upload-complete/12345"
     }
+
+Besides the standard ``meta`` key, the request JSON has the following additional keys:
+
+``action`` (**required**)
+    Must be the string ``"complete"`` to indicate completion of the upload.
+
+``callback_url`` (**optional**)
+    If provided and the server advertised ``file-upload-completion-callback`` capability,
+    the server **MAY** use this URL to asynchronously notify the client when
+    processing is complete.
+    The URL **MUST** use HTTPS.
+    If omitted or if the server doesn't support callbacks,
+    the client must poll for status updates.
 
 If the server is able to immediately complete the File Upload Session, it may do so and return a
 ``201 Created`` response and set the status of the File Upload Session to ``complete``.
@@ -762,6 +787,12 @@ If the server responds with a ``202 Accepted``,
 clients may poll the File Upload Session status URL to watch for the status to change.
 Clients **SHOULD** respect the ``Retry-After`` header value
 of the File Upload Session status response.
+
+If the client provided a ``callback_url`` and the server supports callbacks,
+the server will attempt to notify the client via the callback mechanism
+described in :ref:`File Upload Completion Callbacks <file-upload-completion-callback>`.
+However, clients **SHOULD** be prepared to poll as a fallback mechanism
+in case the callback fails.
 
 If an error occurs, the appropriate ``4xx`` code should be returned, as described in the
 :ref:`session-errors` section.
@@ -797,6 +828,50 @@ After this, the new file upload can be initiated by beginning
 the entire :ref:`file upload <file-upload-session>` sequence over again.
 This means providing the metadata request again to retrieve a new upload resource URL.
 Clients **MUST NOT** assume that the previous upload resource URL can be reused after deletion.
+
+
+.. _file-upload-completion-callback:
+
+File Upload Completion Callbacks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Servers **MAY** support asynchronous callbacks to notify clients when file upload processing is complete,
+eliminating the need for polling.
+This capability is advertised through the ``file-upload-completion-callback`` field
+in the :ref:`File Upload Session response <file-upload-session-response>`.
+
+When a server supports callbacks and a client provides a ``callback_url`` in the
+:ref:`completion request <file-upload-session-completion>`,
+the server **SHOULD** POST to the callback URL when processing completes,
+whether successfully or with an error.
+
+The callback request includes the same response body as the
+:ref:`File Upload Session status response <file-upload-session-response>`:
+
+.. code-block:: text
+
+    POST /webhook/upload-complete/12345 HTTP/1.1
+    Host: example.com
+    Content-Type: application/vnd.pypi.upload.v2+json
+
+The body contains the standard File Upload Session status response,
+which includes the ``status`` field indicating ``"complete"`` or ``"error"``,
+along with all other session details.
+
+**Implementation Notes**:
+
+- Callback URLs **MUST** use HTTPS
+- Clients **SHOULD** respond to callbacks quickly (within 5 seconds)
+- Servers **MAY** retry failed callback attempts but **MUST NOT** block
+  session completion on callback success
+- Clients receiving a callback **MAY** verify the status by polling
+  the session URL if additional confirmation is needed
+
+**Fallback Behavior**:
+
+- If a callback fails or times out, the session status remains unchanged
+- Clients can always poll the status URL regardless of callback usage
+- Servers **MUST NOT** require callback usage for session completion
 
 
 .. _session-status:
