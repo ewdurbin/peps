@@ -1,5 +1,7 @@
 from docutils import nodes
 from sphinx import roles
+from sphinx.errors import NoUri
+from sphinx.util.nodes import make_refnode
 
 
 class PEPRole(roles.ReferenceRole):
@@ -14,26 +16,22 @@ class PEPRole(roles.ReferenceRole):
             msg = self.inliner.reporter.error(f'invalid PEP number {self.target}', line=self.lineno)
             prb = self.inliner.problematic(self.rawtext, self.rawtext, msg)
             return [prb], [msg]
-        pep_base = self.inliner.document.settings.pep_url.format(pep_num)
-        if self.inliner.document.settings.builder == "dirhtml":
-            pep_base = "../" + pep_base
-        if "topic" in self.get_location():
-            pep_base = "../" + pep_base
-        if fragment:
-            ref_uri = f"{pep_base}#{fragment}"
-        else:
-            ref_uri = pep_base
         if self.has_explicit_title:
             title = self.title
         else:
             title = f"PEP {pep_num}"
 
-        return [
-            nodes.reference(
-                "", title,
-                internal=True,
-                refuri=ref_uri,
-                classes=["pep"],
-                _title_tuple=(pep_num, fragment)
+        try:
+            reference = make_refnode(
+                self.env.app.builder,
+                self.env.docname,
+                f"pep-{pep_num:04}",
+                fragment or None,
+                nodes.Text(title),
             )
-        ], []
+        except NoUri:
+            return [nodes.inline("", title, classes=["pep"])], []
+
+        reference["classes"].append("pep")
+        reference["_title_tuple"] = (pep_num, fragment)
+        return [reference], []
