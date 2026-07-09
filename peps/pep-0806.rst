@@ -82,7 +82,7 @@ context manager.
 Our proposal nonetheless permits ``with async some_ctx()``, valuing consistent
 syntax design over enforcement of a single code style which we expect will be
 handled by style guides, linters, formatters, etc.
-See `here <ban-single-line-with-async>`__ for further discussion.
+See `here <ban-single-line-with-async_>`__ for further discussion.
 
 
 Real-World Impact

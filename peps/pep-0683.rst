@@ -395,7 +395,7 @@ mitigation is simple enough that we can safely proceed under the
 assumption that it would not be a problem.
 
 We look at possible solutions
-`later on <Solutions for Accidental De-Immortalization>`_.
+`later on <Solutions for Accidental De-Immortalization_>`_.
 
 Alternate Python Implementations
 --------------------------------

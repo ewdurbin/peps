@@ -97,7 +97,7 @@ argument (i.e. it is not allowed to use a variable which was previously
 assigned a :class:`dict` instance).
 
 Inline typed dictionaries can be referred to as *anonymous*, meaning they
-don't have a specific name (see the `runtime behavior <Runtime behavior>`_
+don't have a specific name (see the `runtime behavior <Runtime behavior_>`_
 section).
 
 It is possible to define a nested inline dictionary::

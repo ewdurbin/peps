@@ -304,7 +304,7 @@ Don't attach notes to ``Exception``\ s, just store them in ``ExceptionGroup``\ s
 --------------------------------------------------------------------------------
 The initial motivation for this PEP was to associate a note with each error
 in an ``ExceptionGroup``.  At the cost of a remarkably awkward API and the
-cross-referencing problem discussed `above <print_idea>`__, this
+cross-referencing problem discussed `above <print_idea_>`__, this
 use-case could be supported by storing notes on the ``ExceptionGroup``
 instance instead of on each exception it contains.
 

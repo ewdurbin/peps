@@ -708,7 +708,7 @@ Sharing Global Objects
 
 We are sharing some global objects between interpreters.
 This is an implementation detail and relates more to
-`globals consolidation <Consolidating Runtime Global State>`_
+`globals consolidation <Consolidating Runtime Global State_>`_
 than to this proposal, but it is a significant enough detail
 to explain here.
 

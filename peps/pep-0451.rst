@@ -523,7 +523,7 @@ see if the module was already in sys.modules.  Now, by the time
 exec_module() is called during load (not reload) the import machinery
 would already have placed the module in sys.modules.  This is part of
 the reason why find_spec() has
-`the "target" parameter <The "target" parameter of find_spec()>`_.
+`the "target" parameter <The "target" parameter of find_spec()_>`_.
 
 The semantics of reload will remain essentially the same as they exist
 already [#reload-semantics-fix]_.  The impact of this PEP on some kinds
