@@ -231,7 +231,7 @@ Connection methods
 .. .close():
 .. _Connection.close:
 
-`.close() <#Connection.close>`_
+`.close() <#connection-close>`_
     Close the connection now (rather than whenever ``.__del__()`` is
     called).
 
@@ -368,7 +368,7 @@ Cursor methods
 .. _Cursor.close:
 .. _Cursor.close():
 
-`.close <#Cursor.close>`_\ ()
+`.close <#cursor-close>`_\ ()
     Close the cursor now (rather than whenever ``__del__`` is called).
 
     The cursor will be unusable from this point forward; an Error_ (or
